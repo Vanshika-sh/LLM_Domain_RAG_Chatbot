@@ -1,5 +1,5 @@
 import streamlit as st
-from Code.rag_agent_utils import get_doc_tools
+from utils.rag_agent_utils import get_doc_tools
 from pathlib import Path
 from llama_index.llms.openai import OpenAI
 from llama_index.core import VectorStoreIndex

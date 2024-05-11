@@ -10,7 +10,7 @@ papers = [
     "/Users/vanshikasharma/Desktop/LLM_UPSKILL/docs/Vanshika_Resume_May2024.pdf",
 ]
 
-from Code.rag_agent_utils import get_doc_tools
+from utils.rag_agent_utils import get_doc_tools
 from pathlib import Path
 
 paper_to_tools_dict = {}
@@ -80,7 +80,7 @@ papers = [
     "vr_mcl.pdf"
 ]
 
-from Code.rag_utils import get_doc_tools
+from utils.rag_utils import get_doc_tools
 from pathlib import Path
 
 paper_to_tools_dict = {}
