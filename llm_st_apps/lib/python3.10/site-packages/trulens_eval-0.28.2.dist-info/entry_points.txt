@@ -1,0 +1,2 @@
+[console_scripts]
+trulens-eval = trulens_eval.utils.command_line:main
