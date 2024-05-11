@@ -5,8 +5,20 @@ from llama_index.llms.openai import OpenAI
 from llama_index.core import VectorStoreIndex
 from llama_index.core.agent import FunctionCallingAgentWorker, AgentRunner
 from llama_index.core.objects import ObjectIndex
+import os
 
 st.title("Multi-Document Analysis App")
+
+# Input for OpenAI API key
+api_key = st.text_input("Enter your OpenAI API key:", type="password")
+
+if api_key:
+    os.environ["OPENAI_API_KEY"] = api_key  # Set API key in the environment
+    llm = OpenAI(model="gpt-3.5-turbo", temperature=0, api_key=api_key)  # Use the API key in the model initialization
+else:
+    st.warning("Please enter your OpenAI API key.")
+    st.stop()
+
 
 # Allow users to upload multiple PDF files
 uploaded_files = st.file_uploader("Choose PDF files", type=['pdf'], accept_multiple_files=True)
