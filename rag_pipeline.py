@@ -22,6 +22,7 @@ from ragas import evaluate
 
 import PyPDF2
 
+
 def vector_indexing(document):
     llm = OpenAI(model="gpt-3.5-turbo", temperature=0.1)
     service_context = ServiceContext.from_defaults(
@@ -193,6 +194,15 @@ def main():
     # Read document
     st.title("RAG (Retrieval-Augmented Generation) System")
     uploaded_file = st.file_uploader("Upload Document", type=['pdf'])
+
+    api_key = st.text_input("Enter your OpenAI API key:", type="password")
+
+    if api_key:
+        os.environ["OPENAI_API_KEY"] = api_key  # Set API key in the environment
+        llm = OpenAI(model="gpt-3.5-turbo", temperature=0, api_key=api_key)  # Use the API key in the model initialization
+    else:
+        st.warning("Please enter your OpenAI API key.")
+        st.stop()
     
     pdf = convert_uploaded_pdf_to_document(uploaded_file)
     pdf_auto = [pdf]
