@@ -22,6 +22,18 @@ from ragas import evaluate
 
 import PyPDF2
 
+st.title("Multi-Document Analysis App")
+
+# Input for OpenAI API key
+api_key = st.text_input("Enter your OpenAI API key:", type="password")
+
+if api_key:
+    os.environ["OPENAI_API_KEY"] = api_key  # Set API key in the environment
+    llm = OpenAI(model="gpt-3.5-turbo", temperature=0, api_key=api_key)  # Use the API key in the model initialization
+else:
+    st.warning("Please enter your OpenAI API key.")
+    st.stop()
+
 
 def vector_indexing(document):
     llm = OpenAI(model="gpt-3.5-turbo", temperature=0.1)
@@ -192,17 +204,7 @@ def convert_uploaded_pdf_to_document(uploaded_pdf):
 def main():
     
     # Read document
-    st.title("RAG (Retrieval-Augmented Generation) System")
     uploaded_file = st.file_uploader("Upload Document", type=['pdf'])
-
-    api_key = st.text_input("Enter your OpenAI API key:", type="password")
-
-    if api_key:
-        os.environ["OPENAI_API_KEY"] = api_key  # Set API key in the environment
-        llm = OpenAI(model="gpt-3.5-turbo", temperature=0, api_key=api_key)  # Use the API key in the model initialization
-    else:
-        st.warning("Please enter your OpenAI API key.")
-        st.stop()
     
     pdf = convert_uploaded_pdf_to_document(uploaded_file)
     pdf_auto = [pdf]
@@ -258,47 +260,7 @@ def main():
     
             st.write("Results for Automatic Merging Retrieval:")
             rec_auto, feedback_auto = eval_automerging_retrieval(automerging_query_engine, questions_list)
-            st.dataframe(rec_auto)#['input','output','Answer Relevance','Context Relevance','Groundedness'])
-            
-
-        
-
-            
-
-
-            
-            
-            
-            
-
-
-    # # Perform vector indexing
-    # index = vector_indexing(document)
-
-    # # Query the index
-    # query_result = query_index(index)
-    # print("Query Result:", query_result)
-
-    # Evaluate basic RAG
-    
-    
-    # print("Basic RAG Records:", basic_rag_records)
-
-    # Perform sentence window retrieval
-    # sentence_index = sentence_window_retrieval(document,uploaded_evals)
-
-    # # Query the sentence window index
-    # sentence_window_result,sentence_window_engine = sentence_window_response(sentence_index,uploaded_evals)
-    # # print("Sentence Window Result---------:", sentence_window_result)
-
-    # automerging_index = automerging_index_func(documents)
-    # response, automerging_query_engine=automerging_engine(automerging_index)
-    # print("AutoMerging Result---------:", sentence_window_result)
-
-    
-
-    # Evaluate sentence window retrieval
-    
+            st.dataframe(rec_auto)#['input','output','Answer Relevance','Context Relevance','Groundedness'])    
 
     
 
