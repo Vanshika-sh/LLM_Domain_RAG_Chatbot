@@ -14,18 +14,6 @@ import nest_asyncio
 
 nest_asyncio.apply()
 
-
-def get_openai_api_key():
-    _ = load_dotenv(find_dotenv())
-
-    return os.getenv("your-openai-api-key")
-
-
-# def get_hf_api_key():
-#     _ = load_dotenv(find_dotenv())
-
-#     return os.getenv("HUGGINGFACE_API_KEY")
-
 openai = OpenAI()
 
 qa_relevance = (

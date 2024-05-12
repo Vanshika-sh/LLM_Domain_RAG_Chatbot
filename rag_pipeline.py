@@ -10,7 +10,7 @@ import utils.rag_utils as rag_utils
 from utils.rag_utils import get_sentence_window_query_engine
 from utils.rag_utils import build_sentence_window_index
 import streamlit as st
-openai.api_key = rag_utils.get_openai_api_key()
+# openai.api_key = rag_utils.get_openai_api_key()
 
 from llama_index.core import SimpleDirectoryReader
 from llama_index.core import VectorStoreIndex, SimpleDirectoryReader
