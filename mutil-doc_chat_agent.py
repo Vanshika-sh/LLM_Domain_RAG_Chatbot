@@ -7,7 +7,7 @@ from llama_index.core.agent import FunctionCallingAgentWorker, AgentRunner
 from llama_index.core.objects import ObjectIndex
 import os
 
-st.title("Multi-Document Analysis App")
+st.title("RAG Chatbot")
 
 # Input for OpenAI API key
 api_key = st.text_input("Enter your OpenAI API key:", type="password")

@@ -19,6 +19,7 @@ from utils.rag_utils import get_automerging_query_engine
 from datasets import Dataset 
 from ragas.metrics import *
 from ragas import evaluate
+from pathlib import Path
 
 import PyPDF2
 
@@ -204,63 +205,74 @@ def convert_uploaded_pdf_to_document(uploaded_pdf):
 def main():
     
     # Read document
-    uploaded_file = st.file_uploader("Upload Document", type=['pdf'])
+    uploaded_files = st.file_uploader("Choose PDF files", type=['pdf'], accept_multiple_files=True)
+
+    # Assuming llm is already defined and configured, if not, define or import llm
+    # llm = OpenAI(model="gpt-3.5-turbo", temperature=0)  # Example placeholder
+
+    if uploaded_files:
+        paper_to_tools_dict = {}
+        for uploaded_file in uploaded_files:
+            # Save uploaded file to disk
+            with open(Path(uploaded_file.name), "wb") as f:
+                f.write(uploaded_file.getvalue())
     
-    pdf = convert_uploaded_pdf_to_document(uploaded_file)
-    pdf_auto = [pdf]
-    if uploaded_file is not None:
-        print('type_streamlit------',type(pdf))
-        st.write("Document uploaded successfully!")
-        # document = read_doc2(uploaded_file) 
+            # pdf = convert_uploaded_pdf_to_document(uploaded_file)
+            pdf_auto = [Path(uploaded_file.name)]
+            if uploaded_file is not None:
+                print('type_streamlit------',type(Path(uploaded_file.name)))
+                st.write("Document uploaded successfully!")
+                # document = read_doc2(uploaded_file) 
 
-        query = st.text_input("Enter your query:")
-        query_context = ('Generate a short context for the question that was asked')
-        eval_ques = st.text_area("Questions (one question per line)", height=200)
-        questions_list = eval_ques.split('\n') if eval_ques else []
-        # for i, question in enumerate(questions_list):
-        #         st.write(f"{i+1}. {question}")
-        
-        print(type(query))
-        if st.button("Generate Response and Evaluate RAG"):
-            index = vector_indexing(pdf)
-            basic_result = query_index(index,query)
-            generated_context = query_index(index,query_context)
-            st.write("Basic RAG Response:")
-            st.info(basic_result)
+                query = st.text_input("Enter your query:")
+                query_context = ('Generate a short context for the question that was asked')
+                eval_ques = st.text_area("Questions (one question per line)", height=200)
+                questions_list = eval_ques.split('\n') if eval_ques else []
+                # for i, question in enumerate(questions_list):
+                #         st.write(f"{i+1}. {question}")
+                
+                print(type(query))
+                if st.button("Generate Response and Evaluate RAG"):
+                    index = vector_indexing(Path(uploaded_file.name))
+                    basic_result = query_index(index,query)
+                    generated_context = query_index(index,query_context)
+                    st.write("Basic RAG Response:")
+                    st.info(basic_result)
 
-            data_samples = {
-            'question': [query],
-            'answer': [basic_result],
-            'contexts' : [[generated_context]],
-            }
-            dataset = Dataset.from_dict(data_samples)
-            score = evaluate(dataset,metrics=[faithfulness])
-            score.to_pandas()
-            print('score---------------',score)
-            st.write('Context')
-            st.info(generated_context)
-            st.write('RAGAS Faithfulness score: ')
-            st.info(score)
+                    data_samples = {
+                    'question': [query],
+                    'answer': [basic_result],
+                    'contexts' : [[generated_context]],
+                    }
+                    dataset = Dataset.from_dict(data_samples)
+                    score = evaluate(dataset,metrics=[faithfulness])
+                    score.to_pandas()
+                    print('score---------------',score)
+                    st.write('Context')
+                    st.info(generated_context)
+                    st.write('RAGAS Faithfulness score: ')
+                    st.info(score)
 
-            sentence_index = sentence_window_retrieval(pdf)
-            sentence_window_result,sentence_window_engine = sentence_window_response(sentence_index,query)
-            st.write("Sentence Window RAG Response:")
-            st.info(sentence_window_result)
-            automerging_index = automerging_index_func(pdf_auto)
-            automerging_index_result, automerging_query_engine=automerging_engine(automerging_index,query)
-            st.write("Automerging Index RAG Response:")
-            st.info(automerging_index_result)
+                    pdf_auto=[Path(uploaded_file.name)]
+                    sentence_index = sentence_window_retrieval(Path(uploaded_file.name))
+                    sentence_window_result,sentence_window_engine = sentence_window_response(sentence_index,query)
+                    st.write("Sentence Window RAG Response:")
+                    st.info(sentence_window_result)
+                    automerging_index = automerging_index_func(pdf_auto)
+                    automerging_index_result, automerging_query_engine=automerging_engine(automerging_index,query)
+                    st.write("Automerging Index RAG Response:")
+                    st.info(automerging_index_result)
 
-            st.write("Results for Basic RAG Retrieval:")
+                    st.write("Results for Basic RAG Retrieval:")
 
-            st.write("Results for Sentence Window Retrieval:")
-            rec_sent, feedback_sent = eval_sentence_window_retrieval(sentence_window_engine, questions_list)
+                    st.write("Results for Sentence Window Retrieval:")
+                    rec_sent, feedback_sent = eval_sentence_window_retrieval(sentence_window_engine, questions_list)
+                    
+                    st.dataframe(rec_sent)#['input','output','Answer Relevance','Context Relevance','Groundedness'])
             
-            st.dataframe(rec_sent)#['input','output','Answer Relevance','Context Relevance','Groundedness'])
-    
-            st.write("Results for Automatic Merging Retrieval:")
-            rec_auto, feedback_auto = eval_automerging_retrieval(automerging_query_engine, questions_list)
-            st.dataframe(rec_auto)#['input','output','Answer Relevance','Context Relevance','Groundedness'])    
+                    st.write("Results for Automatic Merging Retrieval:")
+                    rec_auto, feedback_auto = eval_automerging_retrieval(automerging_query_engine, questions_list)
+                    st.dataframe(rec_auto)#['input','output','Answer Relevance','Context Relevance','Groundedness'])    
 
     
 
